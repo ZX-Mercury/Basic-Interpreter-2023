@@ -86,6 +86,7 @@ public:
  * --------------------------------
  * Sets the token stream for this scanner to the specified string or
  * input stream.  Any previous token stream is discarded.
+ * 将此扫描程序的令牌流设置为指定的字符串或输入流。任何先前的令牌流都将被丢弃。
  */
 
     void setInput(std::string str);
@@ -179,7 +180,9 @@ public:
  * Controls how the scanner treats tokens that begin with a digit.  By
  * default, the <code>nextToken</code> method treats numbers and letters
  * identically and therefore does not provide any special processing for
- * numbers.  Calling
+ * numbers.
+ * 控制扫描仪如何处理以数字开头的标记。默认情况下，nextToken方法对数字和字母一视同仁，因此不对数字提供任何特殊处理。
+ * Calling
  *
  *<pre>
  *    scanner.scanNumbers();
@@ -187,6 +190,7 @@ public:
  *
  * changes this behavior so that <code>nextToken</code> returns the
  * longest substring that can be interpreted as a real number.
+ * 调用M会更改此行为，以便<code>nextToken</code>返回可以解释为实数的最长子字符串。
  */
 
     void scanNumbers();
