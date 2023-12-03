@@ -49,6 +49,8 @@ int main() {
  * need to replace this method with one that can respond correctly
  * when the user enters a program line (which begins with a number)
  * or one of the BASIC commands, such as LIST or RUN.
+ * 处理用户输入的单行。在这个版本的实现中，程序读取一行，将其解析为表达式，然后打印结果。
+ * 在您的实现中，您需要将此方法替换为当用户输入程序行（以数字开头）或BASIC命令（如LIST或RUN）时能够正确响应的方法。
  */
 
 void processLine(std::string line, Program &program, EvalState &state) {
@@ -57,6 +59,113 @@ void processLine(std::string line, Program &program, EvalState &state) {
     scanner.scanNumbers();
     scanner.setInput(line);
 
-    //todo
+    std::string m = scanner.nextToken();
+    bool flag = true;
+    for (char i : m){
+        if (!isdigit(i)) {
+            flag = false;
+            break;
+        }
+    }
+    if (flag){
+        int lineNumber = stoi(m);
+        if (!scanner.hasMoreTokens()) {
+            program.removeSourceLine(lineNumber);
+        }
+        else{
+            m = scanner.nextToken();program.addSourceLine(lineNumber,line);
+            /*if (m == "REM") ;
+            else if (m == "LET") {
+
+            }
+            else if (m == "PRINT") {
+
+            }
+            else if (m == "INPUT") {
+
+            }
+            else if (m == "END") {
+
+            }
+            else if (m == "GOTO") {
+
+            }
+            else if (m == "IF") {
+
+            }*/
+        }
+    }
+    else{
+        if (m == "QUIT") exit(0);
+        else if (m == "LIST") {
+            program.PrintLines();
+        }
+        else if (m == "CLEAR") {
+            program.clear();
+            state.Clear();
+        }
+        else if (m == "HELP") {std::cout<<"\n";}
+        else if (m == "LET") {
+            std::string var=scanner.nextToken();
+            if (var == "LET") {
+                std::cout<<"SYNTAX ERROR\n";
+                return;
+            }
+            scanner.nextToken();
+            auto w = readE(scanner);
+            try{
+                state.setValue(var,w->eval(state));
+                delete w;
+            }
+            catch (ErrorException &ex) {
+                delete w;
+                std::cout << ex.getMessage() << std::endl;
+            }
+        }
+        else if (m == "PRINT") {
+            auto w = readE(scanner);
+            try{
+                std::cout << w->eval(state) << '\n';
+                delete w;
+            }
+            catch (ErrorException &ex) {
+                delete w;
+                std::cout << ex.getMessage() << std::endl;
+            }
+        }
+        else if (m == "INPUT") {
+            std::string var=scanner.nextToken();
+            while(true){
+                std::cout << " ? ";
+                std::string num;
+                getline(std::cin,num);
+                bool flag2= true;
+                if (!(isdigit(num[0])||num[0]=='-')){
+                    std::cout << "INVALID NUMBER\n";
+                    continue;
+                }
+                for (int i = 1; i<num.length();i++) {
+                    if (!isdigit(num[i])){
+                        flag2=false;
+                        break;
+                    }
+                }
+                if (!flag2) {
+                    std::cout << "INVALID NUMBER\n";
+                    continue;
+                }
+                int num2=std::stoi(num);
+                state.setValue(var,num2);
+                break;
+            }
+        }
+        else if (m == "RUN") {
+            program.Run(program,state);
+        }
+        else {
+            error("SYNTAX ERROR");
+        }
+    }
 }
+
 

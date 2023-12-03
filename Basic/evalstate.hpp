@@ -22,6 +22,9 @@
  * is a symbol table that maps variable names into their values.
  * In your implementation, you may include additional information
  * in the EvalState class.
+ * 此类通过评估器的递归级别进行引用传递，并包含评估器可能需要了解的评估环境中的信息。
+ * 在此版本中，EvalState类维护的唯一信息是一个符号表，该表将变量名映射到其值中。
+ * 在您的实现中，您可以在EvalState类中包含其他信息。
  */
 
 class EvalState {
