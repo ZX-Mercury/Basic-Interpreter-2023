@@ -73,14 +73,26 @@ void processLine(std::string line, Program &program, EvalState &state) {
             program.removeSourceLine(lineNumber);
         }
         else{
-            m = scanner.nextToken();
-            if (m == "REM") program.addSourceLine(lineNumber,line);
-            else if (m == "LET"){}
-            else if (m == "PRINT"){}
-            else if (m == "INPUT"){}
-            else if (m == "END"){}
-            else if (m == "GOTO"){}
-            else if (m == "IF"){}
+            m = scanner.nextToken();program.addSourceLine(lineNumber,line);
+            /*if (m == "REM") ;
+            else if (m == "LET") {
+
+            }
+            else if (m == "PRINT") {
+
+            }
+            else if (m == "INPUT") {
+
+            }
+            else if (m == "END") {
+
+            }
+            else if (m == "GOTO") {
+
+            }
+            else if (m == "IF") {
+
+            }*/
         }
     }
     else{
@@ -92,22 +104,39 @@ void processLine(std::string line, Program &program, EvalState &state) {
             program.clear();
             state.Clear();
         }
-        else if (m == "RUN") {}
         else if (m == "HELP") {std::cout<<"\n";}
         else if (m == "LET") {
             std::string var=scanner.nextToken();
+            if (var == "LET") {
+                std::cout<<"SYNTAX ERROR\n";
+                return;
+            }
             scanner.nextToken();
             auto w = readE(scanner);
-            state.setValue(var,w->eval(state));
+            try{
+                state.setValue(var,w->eval(state));
+                delete w;
+            }
+            catch (ErrorException &ex) {
+                delete w;
+                std::cout << ex.getMessage() << std::endl;
+            }
         }
         else if (m == "PRINT") {
             auto w = readE(scanner);
-            std::cout<<w->eval(state)<<'\n';
+            try{
+                std::cout << w->eval(state) << '\n';
+                delete w;
+            }
+            catch (ErrorException &ex) {
+                delete w;
+                std::cout << ex.getMessage() << std::endl;
+            }
         }
         else if (m == "INPUT") {
             std::string var=scanner.nextToken();
             while(true){
-                std::cout << "?";
+                std::cout << " ? ";
                 std::string num;
                 getline(std::cin,num);
                 bool flag2= true;
@@ -129,6 +158,9 @@ void processLine(std::string line, Program &program, EvalState &state) {
                 state.setValue(var,num2);
                 break;
             }
+        }
+        else if (m == "RUN") {
+            program.Run(program,state);
         }
         else {
             error("SYNTAX ERROR");

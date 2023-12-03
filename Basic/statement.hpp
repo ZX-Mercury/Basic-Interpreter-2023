@@ -95,5 +95,10 @@ public:
  * 这些子类中的每一个子类都必须定义一个构造函数和一个名为execute的方法，前者解析来自扫描程序的语句，后者执行该语句。
  * 如果子类的私有数据包括堆上分配的数据（如Expression对象），则类实现还必须指定自己的析构函数方法来释放该内存。
  */
+/*class LET:public Statement{
+public:
+    LET();
+    execute
+};*/
 
 #endif

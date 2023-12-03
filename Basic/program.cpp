@@ -68,4 +68,143 @@ void Program::PrintLines(){
     }
 }
 
+bool cmp(int l, int r, std::string op){
+    if (op=="<") return l<r;
+    if (op=="=") return l==r;
+    if (op==">") return l>r;
+    return true;
+}
+
+void Program::Run(Program &program, EvalState &state) {
+    int pointer = getFirstLineNumber();
+    while(pointer!=-1){
+        std::string line = getSourceLine(pointer);
+        if (line.empty()) {
+            std::cout<<"LINE NUMBER ERROR\n";
+            return;
+        }
+        TokenScanner scanner;
+        scanner.ignoreWhitespace();
+        scanner.scanNumbers();
+        scanner.setInput(line);
+        std::string m=scanner.nextToken();
+        m = scanner.nextToken();
+        if (m == "REM") ;
+        else if (m == "LET") {
+            std::string var=scanner.nextToken();
+            if (var == "LET") {
+                std::cout<<"SYNTAX ERROR\n";
+                return;
+            }
+            scanner.nextToken();
+            auto w = readE(scanner);
+            try{
+                state.setValue(var,w->eval(state));
+                delete w;
+            }
+            catch (ErrorException &ex) {
+                delete w;
+                std::cout << ex.getMessage() << std::endl;
+            }
+        }
+        else if (m == "PRINT") {
+            auto w = readE(scanner);
+            try{
+                std::cout << w->eval(state) << '\n';
+                delete w;
+            }
+            catch (ErrorException &ex) {
+                delete w;
+                std::cout << ex.getMessage() << std::endl;
+            }
+        }
+        else if (m == "INPUT") {
+            std::string var=scanner.nextToken();
+            while(true){
+                std::cout << " ? ";
+                std::string num;
+                getline(std::cin,num);
+                bool flag2= true;
+                if (!(isdigit(num[0])||num[0]=='-')){
+                    std::cout << "INVALID NUMBER\n";
+                    continue;
+                }
+                for (int i = 1; i<num.length();i++) {
+                    if (!isdigit(num[i])){
+                        flag2=false;
+                        break;
+                    }
+                }
+                if (!flag2) {
+                    std::cout << "INVALID NUMBER\n";
+                    continue;
+                }
+                int num2=std::stoi(num);
+                state.setValue(var,num2);
+                break;
+            }
+        }
+        else if (m == "END") { return; }
+        else if (m == "GOTO") {
+            pointer = std::stoi(scanner.nextToken());
+            continue;
+        }
+        else if (m == "IF"){
+            int l, r;
+            auto L = readE(scanner);
+            CompoundExp* LL = dynamic_cast<CompoundExp*>(L);
+            Expression* R;
+            std::string op;
+            if (LL!= nullptr && LL->getOp()=="="){
+                L=LL->getLHS();
+                op="=";
+                R=LL->getRHS();
+                try{
+                    l= L->eval(state);
+                }
+                catch (ErrorException &ex) {
+                    std::cout << ex.getMessage() << std::endl;
+                }
+                try{
+                    r= R->eval(state);
+                }
+                catch (ErrorException &ex) {
+                    std::cout << ex.getMessage() << std::endl;
+                }
+                delete LL;
+            }
+            else {
+                op = scanner.nextToken();
+                R = readE(scanner);
+                try{
+                    l= L->eval(state);
+                    delete L;
+                }
+                catch (ErrorException &ex) {
+                    delete L;
+                    std::cout << ex.getMessage() << std::endl;
+                }
+                try{
+                    r= R->eval(state);
+                    delete R;
+                }
+                catch (ErrorException &ex) {
+                    delete R;
+                    std::cout << ex.getMessage() << std::endl;
+                }
+            }
+
+            if(cmp(l,r,op)){
+                scanner.nextToken();
+                pointer = std::stoi(scanner.nextToken());
+                continue;
+            }
+        }
+        else {
+            error("SYNTAX ERROR");
+        }
+        pointer = getNextLineNumber(pointer);
+    }
+}
+
 

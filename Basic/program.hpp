@@ -30,7 +30,7 @@ class Statement;
  *    pointer to a Statement.
  * 这个类将行存储在BASIC程序中。程序中的每一行都根据其行号按顺序存储。此外，程序中的每一行都与两个组件相关联：
  * 1.源行，即用户输入的完整行（包括行号）。
- * 2.该语句的解析表示，它是指向语句的指针。
+ * 2.该语句的解析表示，它是指向Statement的指针。
  */
 
 class Program {
@@ -158,10 +158,15 @@ public:
     //more func to add
     void PrintLines();
 
+    //void Run();
+
+    void Run(Program &program, EvalState &state);
+
 private:
 
     // Fill this in with whatever types and instance variables you need
     std::map<int, std::string> lines;
+
 };
 
 #endif
